@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?jelly escape-by-default='true'?>
+
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+    <f:entry title="Name" field="name">
+        <f:textbox clazz="required"/>
+    </f:entry>
+
+    <f:entry title="Brokers" field="brokers">
+        <f:textbox clazz="required"/>
+    </f:entry>
+
+    <f:entry title="Topic" field="topicName">
+        <f:textbox clazz="required" />
+    </f:entry>
+
+    <f:entry title="Enable build in queue monitoring?" field="enableInQueue">
+        <f:checkbox/>
+    </f:entry>
+
+    <f:entry title="Enable build started monitoring?" field="enableStarted">
+        <f:checkbox/>
+    </f:entry>
+
+    <f:entry title="Enable build failure monitoring?" field="enableFailure">
+        <f:checkbox/>
+    </f:entry>
+
+<!--    <f:validateButton-->
+<!--            title="Test Connection" progress="Testing..."-->
+<!--            method="testConnection" with="host,port,username,password,isSecure,virtualHost" checkMethod="post"/>-->
+
+    <f:entry title="">
+        <div align="right">
+            <f:repeatableDeleteButton/>
+        </div>
+    </f:entry>
+
+</j:jelly>
