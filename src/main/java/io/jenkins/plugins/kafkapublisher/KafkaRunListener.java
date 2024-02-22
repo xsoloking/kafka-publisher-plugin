@@ -61,7 +61,7 @@ public class KafkaRunListener extends RunListener<Run<?, ?>> {
                 }
             }
         }
-        sendMessage(config.getBrokers(), config.getTopicName(), "Jenkins", JSONObject.fromObject(msg).toString());
+        sendMessage(config, "Jenkins", JSONObject.fromObject(msg).toString());
 
     }
 }

@@ -24,7 +24,7 @@ public class KafkaQueueListener extends QueueListener {
         KafkaPublisherBuilder.KafkaDescriptor descriptor = (KafkaPublisherBuilder.KafkaDescriptor) Jenkins.get().getDescriptor(KafkaPublisherBuilder.class);
         for (KafkaPublisherBuilder.KafkaConfig config : descriptor.getConfigs().getKafkaConfigs()) {
             if (config.isEnableInQueue()) {
-                sendMessage(config.getBrokers(), config.getTopicName(), "Jenkins", getMessage(wi));
+                sendMessage(config, "Jenkins", getMessage(wi));
             }
         }
     }

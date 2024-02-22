@@ -10,6 +10,7 @@ import hudson.model.*;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.ListBoxModel;
+import hudson.util.Secret;
 import jenkins.tasks.SimpleBuildStep;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -147,7 +148,7 @@ public class KafkaPublisherBuilder extends Builder implements SimpleBuildStep {
             if (messageKey == null || messageKey.isEmpty()) {
                 messageKey = "Jenkins";
             }
-            sendMessage(kafkaConfig.getBrokers(), topicName, messageKey, message);
+            sendMessage(kafkaConfig, messageKey, message);
         } catch (Exception e) {
             LOGGER.error("Error while sending to Kafka", e);
             console.println("Error while sending to Kafka : " + ExceptionUtils.getMessage(e));
@@ -268,6 +269,8 @@ public class KafkaPublisherBuilder extends Builder implements SimpleBuildStep {
 
         private String name;
         private String brokers;
+        private String username;
+        private String password;
         private String topicName;
         private boolean enableInQueue;
         private boolean enableStarted;
@@ -276,13 +279,15 @@ public class KafkaPublisherBuilder extends Builder implements SimpleBuildStep {
 
         @DataBoundConstructor
         public KafkaConfig(String name, String brokers, String topicName, boolean enableInQueue,
-                           boolean enableStarted, boolean enableFailure) {
+                           boolean enableStarted, boolean enableFailure, String username, String password) {
             this.name = name;
             this.brokers = brokers;
             this.topicName = topicName;
             this.enableInQueue = enableInQueue;
             this.enableStarted = enableStarted;
             this.enableFailure = enableFailure;
+            this.username = username;
+            this.password = password;
         }
 
         public String getName() {
@@ -309,17 +314,42 @@ public class KafkaPublisherBuilder extends Builder implements SimpleBuildStep {
         public boolean isEnableFailure() {
             return enableFailure;
         }
-        
+
+        public String getUsername() {
+            return username;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public static String getDecodedPassword(String password) {
+            Secret decrypt = Secret.decrypt(password);
+
+            if (decrypt == null) {
+                return password;
+            }
+
+            return decrypt.getPlainText();
+        }
+
+        public String getDecodedPassword() {
+            return getDecodedPassword(password);
+        }
 
         static KafkaConfig fromJSON(JSONObject jsonObject) {
             String name = jsonObject.getString("name");
             String brokers = jsonObject.getString("brokers");
+            String username = jsonObject.getString("username");
+            String password = jsonObject.getString("password");
             String topicName = jsonObject.getString("topicName");
             boolean enableInQueue = jsonObject.getBoolean("enableInQueue");
             boolean enableStarted = jsonObject.getBoolean("enableStarted");
             boolean enableFailure = jsonObject.getBoolean("enableFailure");
 
-            return new KafkaConfig(name, brokers, topicName, enableInQueue, enableStarted, enableFailure);
+            Secret secret = Secret.fromString(password);
+
+            return new KafkaConfig(name, brokers, topicName, enableInQueue, enableStarted, enableFailure, username, secret.getEncryptedValue());
         }
 
         @Override
